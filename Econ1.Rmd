@@ -1,0 +1,57 @@
+---
+title: 'Econ #1'
+author: "Brad Anderson"
+date: "April 5, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+ library(tidyverse)
+
+dat <- read.csv("HW1data.csv")
+colnames(dat) <- c("parcel","a","b","cost")
+
+```
+
+###A) We will want to purchase the parcels that have the highest habitat quality values and the lowest cost. For example, parcel 1 has a low cost of of 0.1 with high habitat quality values of 3 for both species A and B.
+```{r}
+
+ln <- function(x){
+  
+  lnx <- -log(x)
+  return(lnx)
+  
+}
+
+scalar <- 100
+ln_scalar <- ln(scalar)
+```
+
+
+```{r function}
+
+suitable <- function(purchases){
+  
+  suitability <- sqrt(sum(purchases*dat$a))
+  
+  return(-suitability)
+}
+```
+
+```{r purchase every parcel}
+
+every_parcel = rep(1,50)
+maximum_probability = suitable(every_parcel)
+
+```
+
+```{r}
+
+print(constrOptim(10, ln, ui=c(-1), ci=(-20), grad=NULL))
+
+```
+
