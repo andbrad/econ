@@ -17,20 +17,9 @@ colnames(dat) <- c("parcel","a","b","cost")
 
 ```
 
-###A) We will want to purchase the parcels that have the highest habitat quality values and the lowest cost. For example, parcel 1 has a low cost of of 0.1 with high habitat quality values of 3 for both species A and B.
-```{r}
+A) We will want to purchase the parcels that have the highest habitat quality values and the lowest cost. For example, parcel 1 has a low cost of of 0.1 with high habitat quality values of 3 for both species A and B. Obviously, this will result in us purchasing any value 3 parcels with low scores. Things get tricker as the value 3 parcels get more expensive. Let's say we are forced to choose to buy one value 3 parcel or two value 2 parcels, which is better? Habitat area is a factor in our function that determines the probability of survival, thus I would suspect that conserving more area of lower value will often be better.
 
-ln <- function(x){
-  
-  lnx <- -log(x)
-  return(lnx)
-  
-}
-
-scalar <- 100
-ln_scalar <- ln(scalar)
-```
-
+B) We will use $Pr(survival) = c[\sqrt{\sum{w_ix_i}}]$ and then use the linearly constrained optimization (contrOptim in R) with a budget of $10 million dolars to determine how much of which parcels to purchase.
 
 ```{r function}
 
@@ -47,11 +36,45 @@ suitable <- function(purchases){
 every_parcel = rep(1,50)
 maximum_probability = suitable(every_parcel)
 
+C_a <- (1/maximum_probability)*-1
+
+C_a
+
+```
+
+
+```{r}
+eye = diag(50) # The identity matrix
+coefs = rbind(eye, -eye, -dat$cost)
+
+# Now we need to set up the value of the constraint, which is a vector of 50 zeros, 50 negative 1's, and finally the 
+# number 10 which is the total cost (you may need to review matrix multiplication for this to make sense)
+
+constraints = c(rep(0,50), rep(-1,50), -10)
+
+# Lets see if it works....
+
+initial_guess = rep(0.4,50) 
+
+# remember the initial guess has to be feasible which you can check 
+# by typing coefs %*% initial_guess >= constraints into the console & checking they are all true
+
+output = constrOptim(initial_guess, suitable, ui=coefs, ci=constraints, grad=NULL)
 ```
 
 ```{r}
 
-print(constrOptim(10, ln, ui=c(-1), ci=(-20), grad=NULL))
+# You can reference the optimization output as follows
+
+success_prob_A_only = -output$value
+purchases = output$par
+
+success_prob_A_only*C_a
+purchases
+
+dat_update = cbind(dat, purchases)
+
+
 
 ```
 

@@ -123,9 +123,52 @@ $(document).ready(function () {
 </div>
 
 
-<div id="a-we-will-want-to-purchase-the-parcels-that-have-the-highest-habitat-quality-values-and-the-lowest-cost." class="section level3">
-<h3>A) We will want to purchase the parcels that have the highest habitat quality values and the lowest cost.</h3>
-</div>
+<ol style="list-style-type: upper-alpha">
+<li><p>We will want to purchase the parcels that have the highest habitat quality values and the lowest cost. For example, parcel 1 has a low cost of of 0.1 with high habitat quality values of 3 for both species A and B. Obviously, this will result in us purchasing any value 3 parcels with low scores. Things get tricker as the value 3 parcels get more expensive. Let’s say we are forced to choose to buy one value 3 parcel or two value 2 parcels, which is better? Habitat area is a factor in our function that determines the probability of survival, thus I would suspect that conserving more area of lower value will often be better.</p></li>
+<li><p>We will use <span class="math inline">\(Pr(survival) = c[\sqrt{\sum{w_ix_i}}]\)</span> and then use the linearly constrained optimization (contrOptim in R) with a budget of $10 million dolars to determine how much of which parcels to purchase.</p></li>
+</ol>
+<pre class="r"><code>suitable &lt;- function(purchases){
+  
+  suitability &lt;- sqrt(sum(purchases*dat$a))
+  
+  return(-suitability)
+}</code></pre>
+<pre class="r"><code>every_parcel = rep(1,50)
+maximum_probability = suitable(every_parcel)</code></pre>
+<pre class="r"><code>eye = diag(50) # The identity matrix
+coefs = rbind(eye, -eye, -dat$cost)
+
+# Now we need to set up the value of the constraint, which is a vector of 50 zeros, 50 negative 1's, and finally the 
+# number 10 which is the total cost (you may need to review matrix multiplication for this to make sense)
+
+constraints = c(rep(0,50), rep(-1,50), -10)
+
+# Lets see if it works....
+
+initial_guess = rep(0.4,50) 
+
+# remember the initial guess has to be feasible which you can check 
+# by typing coefs %*% initial_guess &gt;= constraints into the console &amp; checking they are all true
+
+output = constrOptim(initial_guess, suitable, ui=coefs, ci=constraints, grad=NULL)</code></pre>
+<pre class="r"><code># You can reference the optimization output as follows
+
+success_prob = -output$value
+purchases = output$par
+
+success_prob</code></pre>
+<pre><code>## [1] 6.836615</code></pre>
+<pre class="r"><code>purchases</code></pre>
+<pre><code>##  [1] 0.995670759 0.016973113 0.396840640 0.009682236 0.298771294
+##  [6] 0.635620217 0.328980401 0.029177146 0.526972621 0.876620462
+## [11] 0.747498301 0.701311621 0.591990753 0.563580247 0.399882022
+## [16] 0.015800422 0.035771517 0.021710065 0.645609524 0.637115868
+## [21] 0.886207855 0.387360232 0.518540954 0.312429023 0.287039543
+## [26] 0.575013173 0.057007196 0.020962223 0.018492878 0.539512140
+## [31] 0.748407525 0.603519911 0.225538118 0.404861635 0.410156372
+## [36] 0.305395959 0.283748642 0.326530553 0.270152008 0.647971573
+## [41] 0.174696308 0.020016103 0.017527318 0.016034354 0.812180978
+## [46] 0.828142010 0.626143649 0.773275652 0.764973149 0.770694030</code></pre>
 
 
 
