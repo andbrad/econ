@@ -1,0 +1,45 @@
+---
+title: "Econ 2"
+author: "Brad Anderson"
+date: "April 23, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r example}
+
+sum.of.squares <- function(x,y) {
+  x^2 + y^2
+}
+sum.of.squares(3,4)
+  
+```
+
+
+```{r}
+Hslope <- -9.65
+
+
+H_curve_P <- function(Q){100+Hslope*Q}
+
+H_curve_Q <- function(P){(-P+100)/-Hslope}
+
+
+Lslope <- -16.625
+
+L_curve_P <- function(Q){70+Lslope*Q}
+
+L_curve_Q <- function(P){(70-P)/-Lslope}
+
+
+```
+
+```{r}
+
+
+
+```
+
