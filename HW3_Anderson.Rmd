@@ -14,17 +14,25 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 
 data <- read_csv("~/github/econ/HW3Data.csv")
+```
 
-data$risk <- as.factor(data$risk)
-data$bid <- as.factor(data$bid)
-data$NEP <- as.numeric(data$NEP)
-data$income <- as.factor(data$income) %>% 
-  factor(levels = c("poor", "middle", "rich","very_rich", "one_percent"))
-data$age <- as.factor(data$age)%>% 
-  factor(levels = c("tothirty", "toforty", "tofifty","tosixty", "over_sixty"))
+```{r}
+
+#data$risk <- as.factor(data$risk)
+#data$bid <- as.factor(data$bid)
+#data$NEP <- as.numeric(data$NEP)
+data$income <- as.factor(data$income)
+data$income <- relevel (data$income, ref = "poor")
+
+
+data$age <- as.factor(data$age)
+data$age <- relevel(data$age, ref = "tothirty")
 
 summary(data)
+
 ```
+
+
 
 ```{r}
 
@@ -35,12 +43,4 @@ summary(vote_prob)
 NEP score is the most influential factor to determining the probability of voting yes. Higher risk = more lilkely to vote yes. The higher the bid the less likely to vote yes (except bid 100?). Younger people are more likely to vote yes. The higher the income ther more likely to vote yes (except between poor and middle). 
 
 "The New Ecological Paradigm scale is a measure of endorsement of a “pro-ecological” world view. It is used extensively in environmental education, outdoor recreation, and other realms where diff erences in behavior or attitudes are believed to be explained by underlying values, a world view, or a paradigm. The scale is constructed from individual responses to fifteen statements that measure agreement or disagreement. New Ecological Paradigm (NEP) Scale (PDF Download Available). Available from: https://www.researchgate.net/publication/264858463_New_Ecological_Paradigm_NEP_Scale [accessed May 14 2018]."
-
-
-```{r, eval=FALSE, include=FALSE}
-
-binary_model<-glm(vote ~ income + age + risk + NEP + bid, data = HW3Data, family = "binomial")
-summary(binary_model)
-
-```
 
